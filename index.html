@@ -3,228 +3,285 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Code Editor Recreation</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"> <style>
-        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap'); /* Common coding font */
+    <title>Code Editor Recreation - Precise</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            /* Color Palette - Sampled from Screenshot */
+            --bg-window: #2e3035;
+            --bg-title-bar: #3c3f44;
+            --bg-tab-bar: #25272b;
+            --bg-tab-active: #2e3035;
+            --bg-avatar: #4a4c50; /* Slightly darker gray */
+
+            --text-inactive: #85888d;
+            --text-active: #e2e2e2; /* Slightly brighter white/gray */
+            --text-default: #e2e2e2;
+            --text-line-numbers: #5a5e64;
+            --text-avatar: #a0a0a0;
+            --text-user: #c8c8c8;
+
+            --color-keyword: #4585ff; /* Brighter blue */
+            --color-variable-used: #40beff; /* Light blue/cyan (game, workspace, localPlayer usage, string.*) */
+            --color-function: #ffe18b; /* Yellow */
+            --color-string: #8bff8b; /* Bright Green */
+            --color-comment: #6a9955; /* Standard green */
+            --color-operator: #e2e2e2; /* Default */
+            --color-punctuation: #e2e2e2; /* Default */
+            --color-variable-declared: #e2e2e2; /* Default for variable names on left side of = */
+
+            --icon-color-inactive: #85888d;
+            --icon-color-active-tab: #8cb4f7; /* Specific blue for active tab icon */
+            --icon-color-footer: #9a9ea4; /* Slightly lighter gray for footer icons */
+
+            --border-separator-light: #4a4c50;
+            --border-separator-dark: #25272b;
+
+            --traffic-red: #ff5f57;
+            --traffic-yellow: #febc2e;
+            --traffic-green: #28c840;
+
+            --font-ui: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            /* --font-code: 'JetBrains Mono', monospace; */
+             --font-code: 'Fira Code', monospace; /* Sticking with Fira Code as it's close */
+        }
 
         body {
-            background-color: #f0f0f0; /* Light background to see the window */
+            background-color: #e0e0e0; /* Light background to see window */
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; /* System font for UI */
+            font-family: var(--font-ui);
         }
 
         .editor-window {
-            width: 800px; /* Adjust width as needed */
-            background-color: #2e3035; /* Main editor background */
+            width: 800px;
+            background-color: var(--bg-window);
             border-radius: 8px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
             overflow: hidden;
-            border: 1px solid #4a4c50; /* Subtle border */
+            border: 1px solid var(--border-separator-light);
         }
 
         /* Title Bar */
         .title-bar {
-            background-color: #3c3f44; /* Title bar background */
+            background-color: var(--bg-title-bar);
             padding: 8px 12px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid #25272b; /* Separator line */
+            border-bottom: 1px solid var(--border-separator-dark);
         }
 
-        .traffic-lights {
-            display: flex;
-            gap: 8px;
-        }
+        .traffic-lights { display: flex; gap: 8px; }
+        .traffic-light { width: 12px; height: 12px; border-radius: 50%; }
+        .red { background-color: var(--traffic-red); }
+        .yellow { background-color: var(--traffic-yellow); }
+        .green { background-color: var(--traffic-green); }
 
-        .traffic-light {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-        }
-
-        .red { background-color: #ff5f57; }
-        .yellow { background-color: #febc2e; }
-        .green { background-color: #28c840; }
-
-        .user-profile {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: #adb5bd; /* Light gray text */
-            font-size: 13px;
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            background-color: #28c840; /* Green dot */
-            border-radius: 50%;
-        }
-
+        .user-profile { display: flex; align-items: center; gap: 8px; color: var(--text-user); font-size: 13px; }
+        .status-dot { width: 8px; height: 8px; background-color: var(--traffic-green); border-radius: 50%; }
         .avatar {
-            width: 20px;
-            height: 20px;
-            background-color: #6c757d; /* Placeholder avatar */
+            width: 22px; /* Slightly larger */
+            height: 22px;
+            background-color: var(--bg-avatar);
             border-radius: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 10px;
-            color: #fff;
-            font-weight: bold;
-            /* In the screenshot it looks like a stylized 'A' or similar icon */
-             /* Using Font Awesome for a placeholder user icon */
-             font-family: 'Font Awesome 6 Free';
-             content: "\f007"; /* User icon */
-             font-weight: 900;
-
         }
-         /* Override Font Awesome default styles if needed */
-        .avatar::before {
-            font-family: 'Font Awesome 6 Free';
-            content: "\f007"; /* User icon */
-            font-weight: 900; /* Required for solid icons */
-            color: #e0e0e0;
-        }
-
+        .avatar svg { width: 12px; height: 12px; fill: var(--text-avatar); }
 
         /* Tab Bar */
         .tab-bar {
-            background-color: #25272b; /* Slightly darker than editor bg */
+            background-color: var(--bg-tab-bar);
             display: flex;
-            align-items: center;
-            padding: 0 5px; /* Padding around tabs */
-            height: 38px; /* Match screenshot height */
+            align-items: stretch; /* Make tabs fill height */
+            padding: 0 5px;
+            height: 38px;
         }
 
         .tab {
-            padding: 8px 10px 8px 28px; /* Padding for icon and text */
-            color: #adb5bd; /* Inactive tab text color */
+            padding: 0 10px 0 10px; /* Adjusted padding */
+            color: var(--text-inactive);
             font-size: 13px;
             position: relative;
             cursor: pointer;
             display: flex;
             align-items: center;
             gap: 6px;
-            border-right: 1px solid #3c3f44; /* Separator */
-            height: 100%;
-            box-sizing: border-box; /* Include padding/border in height */
+            border-right: 1px solid var(--border-separator-light);
+            box-sizing: border-box;
         }
+         .tab:first-of-type { /* Ensure first tab has icon padding */
+             padding-left: 28px;
+         }
+         .tab.active:first-of-type {
+             padding-left: 28px;
+         }
+
 
         .tab.active {
-            background-color: #2e3035; /* Same as editor background */
-            color: #e0e0e0; /* Active tab text color */
-            border-top: 1px solid #2e3035; /* Blend top border */
+            background-color: var(--bg-tab-active);
+            color: var(--text-active);
+            border-top: 1px solid var(--bg-tab-active); /* Blend */
+            /* Remove bottom border visually */
+             margin-bottom: -1px;
+             padding-bottom: 1px; /* Add back the pixel */
         }
 
-        .tab .icon {
+        .tab .tab-icon {
             position: absolute;
-            left: 10px;
+            left: 8px;
             top: 50%;
             transform: translateY(-50%);
-            font-size: 12px;
-            color: #6c757d; /* Icon color */
+            width: 14px;
+            height: 14px;
+            fill: var(--icon-color-inactive);
         }
-         .tab.active .icon {
-             color: #9fa8da; /* Specific color for active icon if needed */
-         }
+        .tab.active .tab-icon {
+            fill: var(--icon-color-active-tab); /* Specific color for active tab icon */
+        }
+
+         /* Specific styling for ArsenalG icon if needed */
+        .tab.active .tab-icon.arsenal-icon {
+             fill: #e0ac69; /* Gold/Orange color from screenshot */
+        }
+
 
         .tab .close-icon {
             margin-left: 8px;
-            font-size: 12px;
-            color: #6c757d;
-            padding: 2px; /* Make it easier to click */
+            font-size: 14px; /* Slightly larger X */
+            font-weight: normal;
+            color: var(--icon-color-inactive);
+            padding: 2px 4px;
+            border-radius: 3px;
+            line-height: 1; /* Prevent extra spacing */
         }
-         .tab .close-icon:hover {
-             color: #ced4da;
-             background-color: #4a4c50;
-             border-radius: 3px;
-         }
-         .tab.active .close-icon {
-             color: #adb5bd;
+        .tab .close-icon:hover {
+             color: var(--text-active);
+             background-color: var(--border-separator-light);
+        }
+        .tab.active .close-icon {
+             color: var(--text-inactive); /* Keep it gray even when active */
+        }
+         .tab.active .close-icon:hover {
+             color: var(--text-active);
+             background-color: #5a5e64; /* Darker hover for active tab */
          }
 
 
         .add-tab {
-            color: #adb5bd;
-            font-size: 18px;
+            color: var(--text-inactive);
+            font-size: 20px;
+            font-weight: lighter;
             padding: 0 10px;
             cursor: pointer;
-            margin-left: 5px; /* Space before '+' */
+            margin-left: 5px;
+            display: flex;
+            align-items: center;
         }
-        .add-tab:hover {
-             color: #e0e0e0;
-        }
+        .add-tab:hover { color: var(--text-active); }
 
         /* Code Area */
         .code-area {
             display: flex;
-            background-color: #2e3035; /* Editor background */
-            font-family: 'Fira Code', monospace; /* Monospaced font */
-            font-size: 13px; /* Adjust font size */
-            line-height: 1.6; /* Adjust line height */
-            padding: 10px 0 10px 10px; /* Padding top/bottom/left */
+            background-color: var(--bg-window);
+            font-family: var(--font-code);
+            font-size: 13.5px; /* Slightly larger font */
+            line-height: 1.6;
+            padding: 10px 0 15px 0; /* Adjust padding */
         }
 
         .line-numbers {
-            color: #6c757d; /* Line number color */
+            color: var(--text-line-numbers);
             text-align: right;
-            padding-right: 15px; /* Space between numbers and code */
-            user-select: none; /* Prevent selecting line numbers */
-            white-space: pre; /* Keep line breaks */
+            padding: 0 15px 0 15px; /* Padding left/right */
+            user-select: none;
+            white-space: pre;
+            font-size: 13.5px; /* Match code font size */
+             line-height: 1.6; /* Match code line height */
         }
 
         .code-content {
-            color: #d4d4d4; /* Default code text color */
-            white-space: pre; /* Preserve whitespace and line breaks */
+            color: var(--text-default);
+            white-space: pre;
             flex-grow: 1;
+            padding-right: 10px;
         }
 
-        /* Syntax Highlighting */
-        .code-content .keyword { color: #569cd6; } /* Blue for 'local' */
-        .code-content .variable { color: #9cdcfe; } /* Light blue for variables */
-        .code-content .function { color: #dcdcaa; } /* Yellow/gold for function calls like GetService */
-        .code-content .method { color: #dcdcaa; } /* Treat methods same as functions */
-        .code-content .string { color: #ce9178; } /* Orange/brown for strings */
-        .code-content .parameter { color: #4ec9b0; } /* Teal for parameters (like in GetService) */
-        .code-content .property { color: #4ec9b0; } /* Teal for properties like .LocalPlayer, .Backpack */
-        .code-content .comment { color: #6a9955; } /* Green for comments (none in screenshot) */
-        .code-content .operator { color: #d4d4d4; } /* Default color for '=' */
-        .code-content .punctuation { color: #d4d4d4; } /* Default color for ',', '(', ')', '{' */
-        .code-content .global { color: #4fc1ff; } /* Different blue for globals like game, workspace */
+        /* Precise Syntax Highlighting */
+        .code-content .keyword { color: var(--color-keyword); } /* local */
+        .code-content .variable-declared { color: var(--color-variable-declared); } /* RunService, TweenService, etc. */
+        .code-content .variable-used { color: var(--color-variable-used); } /* game, Players, localPlayer, workspace, string */
+        .code-content .function { color: var(--color-function); } /* GetService, GetMouse */
+        .code-content .string { color: var(--color-string); } /* 'RunService', 'TweenService', etc. */
+        .code-content .property { color: var(--color-variable-used); } /* LocalPlayer, Backpack, CurrentCamera, lower, upper, find */
+        .code-content .operator { color: var(--color-operator); } /* = */
+        .code-content .punctuation { color: var(--color-punctuation); } /* : ( ) , { */
+        .code-content .comment { color: var(--color-comment); }
 
         /* Footer */
         .footer-bar {
-            background-color: #3c3f44; /* Same as title bar */
-            border-top: 1px solid #25272b; /* Separator line */
-            padding: 6px 12px;
+            background-color: var(--bg-title-bar);
+            border-top: 1px solid var(--border-separator-dark);
+            padding: 6px 15px; /* More horizontal padding */
             display: flex;
             justify-content: space-between;
             align-items: center;
-            color: #adb5bd; /* Icon color */
-            font-size: 16px; /* Icon size */
         }
 
-        .footer-left, .footer-right {
-            display: flex;
-            gap: 15px; /* Space between icons */
+        .footer-left, .footer-right { display: flex; gap: 18px; } /* More space between icons */
+
+        .footer-bar svg {
+            width: 16px;
+            height: 16px;
+            fill: var(--icon-color-footer);
+            cursor: pointer;
+             opacity: 0.8; /* Slight fade */
+        }
+        .footer-bar svg:hover {
+             /* color: var(--text-active); */
+             opacity: 1.0;
+              fill: var(--text-active);
         }
 
-         .footer-bar i {
-             cursor: pointer;
-         }
-         .footer-bar i:hover {
-             color: #e0e0e0;
-         }
 
     </style>
 </head>
 <body>
+    <svg width="0" height="0" style="position:absolute">
+        <defs>
+            <svg id="icon-doc" viewBox="0 0 16 16">
+                <path d="M3.5 2A1.5 1.5 0 0 0 2 3.5v9A1.5 1.5 0 0 0 3.5 14h9a1.5 1.5 0 0 0 1.5-1.5V6.707L10.293 3H3.5zm7 1.293L12.707 6H10.5zM3 3.5a.5.5 0 0 1 .5-.5h6a.5.5 0 0 1 .5.5V6h2.5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5v-9z"/>
+            </svg>
+            <svg id="icon-flame" viewBox="0 0 16 16">
+                <path d="M8 16c3.314 0 6-2 6-5.5 0-1.5-.5-4-2.5-6 .25 1.5-1.25 2-1.25 2C11 4 9 .5 6 0c.357 2 .5 4-2 6-1.25 1-2 2.729-2 4.5C2 14 4.686 16 8 16Zm0-1c-1.657 0-3-1-3-2.75 0-.75.25-2 1.25-3C6.125 10 7 10.5 7 10.5c-.375-1.25.5-3.25 2-3.5-.179 1-.25 1.7-.25 2.75C9 12.157 8.657 13 8 13Zm0-3c.828 0 1.5-.672 1.5-1.5 0-.414-.172-.786-.417-1.031C9.172 7.172 9 6.86 9 6.5c0-.357.5-2.5 1.5-2.5.119 1 .25 1.5.25 2 0 1-.966 1.847-1.417 2.375C8.828 9.828 8.5 10 8 10c-.5 0-.828-.172-1.083-.417C6.466 9.146 5.5 8.25 5.5 7.25c0-.5.131-1 .25-2C6.75 4 7 6.143 7 6.5c0 .36.172.672.417.917.245.245.417.617.417 1.031 0 .828.672 1.5 1.5 1.5Z"/>
+            </svg>
+            <svg id="icon-avatar-a" viewBox="0 0 100 100">
+                <path d="M50 10 L15 90 H35 L45 65 H55 L65 90 H85 Z M50 30 L60 55 H40 Z"/>
+            </svg>
+            <svg id="icon-play" viewBox="0 0 16 16">
+                 <path d="M11.596 8.697l-6.363 3.692c-.54.313-1.233-.066-1.233-.697V4.308c0-.63.692-1.01 1.233-.696l6.363 3.692a.802.802 0 0 1 0 1.393z"/>
+            </svg>
+            <svg id="icon-debug" viewBox="0 0 16 16">
+                 <path d="M11 1a1 1 0 0 1 1 1v2a1 1 0 1 1-2 0V2a1 1 0 0 1 1-1zM5 1a1 1 0 0 1 1 1v2a1 1 0 1 1-2 0V2a1 1 0 0 1 1-1zm6 6h-1V5h1v2zm-3 0h-1V5h1v2zm-3 0H5V5h1v2zM4 12a1 1 0 0 1 1-1h6a1 1 0 1 1 0 2H5a1 1 0 0 1-1-1zm5-10a1 1 0 0 1 1 1v2a1 1 0 1 1-2 0V2a1 1 0 0 1 1-1z"/>
+                 <path d="M3 6a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6zm1 0v7h8V6H4z"/>
+            </svg>
+            <svg id="icon-folder" viewBox="0 0 16 16">
+                <path d="M.54 3.87.5 3a2 2 0 0 1 2-2h3.672a2 2 0 0 1 1.414.586l.828.828A2 2 0 0 0 9.828 3h3.982a2 2 0 0 1 1.992 2.181l-.637 7A2 2 0 0 1 13.174 14H2.826a2 2 0 0 1-1.991-1.819l-.637-7a1.99 1.99 0 0 1 .322-1.31zM6.172 2H2.5a1 1 0 0 0-1 .981l.006.139C1.72 3.042 1.95 3 2.19 3h5.396l-.707-.707A1 1 0 0 0 6.172 2zm7.487 3H9.828a1 1 0 0 1-.707-.293L8.386 4H2.19c-.24 0-.468.042-.686.12L1.5 3.87l.637 7a1 1 0 0 0 .996.93h10.348a1 1 0 0 0 .996-.93l.637-7z"/>
+            </svg>
+            <svg id="icon-panels" viewBox="0 0 16 16">
+                <path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm5 0v12h6V2H5zm1 0h4v12H6V2zM1 2h3v12H1V2zm11 0h3v12h-3V2z"/>
+            </svg>
+            <svg id="icon-settings" viewBox="0 0 16 16">
+                <path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311c.446.82.023 1.841-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 0 1-2.105-.872l-.1-.34zM8 10.93a2.929 2.929 0 1 1 0-5.86 2.929 2.929 0 0 1 0 5.858z"/>
+            </svg>
+        </defs>
+    </svg>
 
     <div class="editor-window">
         <div class="title-bar">
@@ -236,16 +293,21 @@
             <div class="user-profile">
                 <span class="status-dot"></span>
                 <span>Canda</span>
-                 <span class="avatar"></span> </div>
+                <span class="avatar">
+                    <svg><use xlink:href="#icon-avatar-a"/></svg>
+                </span>
+            </div>
         </div>
 
         <div class="tab-bar">
             <div class="tab">
-                <i class="fas fa-file-alt icon"></i> Untitled
+                <svg class="tab-icon"><use xlink:href="#icon-doc"/></svg>
+                Untitled
                 <span class="close-icon">&times;</span>
             </div>
             <div class="tab active">
-                 <i class="fas fa-fire icon" style="color: #e0ac69;"></i> ArsenalG...
+                 <svg class="tab-icon arsenal-icon"><use xlink:href="#icon-flame"/></svg>
+                ArsenalG...
                 <span class="close-icon">&times;</span>
             </div>
             <span class="add-tab">+</span>
@@ -268,33 +330,35 @@
 13
 14
 15
-16
-            </div>
-            <div class="code-content">
-<span class="keyword">local</span> <span class="variable">RunService</span> <span class="operator">=</span> <span class="global">game</span><span class="punctuation">:</span><span class="function">GetService</span><span class="punctuation">(</span><span class="string">'RunService'</span><span class="punctuation">)</span>
-<span class="keyword">local</span> <span class="variable">TweenService</span> <span class="operator">=</span> <span class="global">game</span><span class="punctuation">:</span><span class="function">GetService</span><span class="punctuation">(</span><span class="string">'TweenService'</span><span class="punctuation">)</span>
+16</div>
+            <div class="code-content"><span class="keyword">local</span> <span class="variable-declared">RunService</span> <span class="operator">=</span> <span class="variable-used">game</span><span class="punctuation">:</span><span class="function">GetService</span><span class="punctuation">(</span><span class="string">'RunService'</span><span class="punctuation">)</span>
+<span class="keyword">local</span> <span class="variable-declared">TweenService</span> <span class="operator">=</span> <span class="variable-used">game</span><span class="punctuation">:</span><span class="function">GetService</span><span class="punctuation">(</span><span class="string">'TweenService'</span><span class="punctuation">)</span>
 
-<span class="keyword">local</span> <span class="variable">UserInputService</span> <span class="operator">=</span> <span class="global">game</span><span class="punctuation">:</span><span class="function">GetService</span><span class="punctuation">(</span><span class="string">'UserInputService'</span><span class="punctuation">)</span>
-<span class="keyword">local</span> <span class="variable">Players</span> <span class="operator">=</span> <span class="global">game</span><span class="punctuation">:</span><span class="function">GetService</span><span class="punctuation">(</span><span class="string">'Players'</span><span class="punctuation">)</span>
+<span class="keyword">local</span> <span class="variable-declared">UserInputService</span> <span class="operator">=</span> <span class="variable-used">game</span><span class="punctuation">:</span><span class="function">GetService</span><span class="punctuation">(</span><span class="string">'UserInputService'</span><span class="punctuation">)</span>
+<span class="keyword">local</span> <span class="variable-declared">Players</span> <span class="operator">=</span> <span class="variable-used">game</span><span class="punctuation">:</span><span class="function">GetService</span><span class="punctuation">(</span><span class="string">'Players'</span><span class="punctuation">)</span>
 
-<span class="keyword">local</span> <span class="variable">LocalPlayer</span><span class="punctuation">,</span> <span class="variable">localPlayer</span> <span class="operator">=</span> <span class="variable">Players</span><span class="punctuation">.</span><span class="property">LocalPlayer</span><span class="punctuation">,</span> <span class="variable">Players</span><span class="punctuation">.</span><span class="property">LocalPlayer</span>
-<span class="keyword">local</span> <span class="variable">Mouse</span> <span class="operator">=</span> <span class="variable">localPlayer</span><span class="punctuation">:</span><span class="method">GetMouse</span><span class="punctuation">(</span><span class="punctuation">)</span>
+<span class="keyword">local</span> <span class="variable-declared">LocalPlayer</span><span class="punctuation">,</span> <span class="variable-declared">localPlayer</span> <span class="operator">=</span> <span class="variable-used">Players</span><span class="punctuation">.</span><span class="property">LocalPlayer</span><span class="punctuation">,</span> <span class="variable-used">Players</span><span class="punctuation">.</span><span class="property">LocalPlayer</span>
+<span class="keyword">local</span> <span class="variable-declared">Mouse</span> <span class="operator">=</span> <span class="variable-used">localPlayer</span><span class="punctuation">:</span><span class="function">GetMouse</span><span class="punctuation">(</span><span class="punctuation">)</span>
 
-<span class="keyword">local</span> <span class="variable">Backpack</span> <span class="operator">=</span> <span class="variable">localPlayer</span><span class="punctuation">.</span><span class="property">Backpack</span>
-<span class="keyword">local</span> <span class="variable">Camera</span><span class="punctuation">,</span> <span class="variable">camera</span> <span class="operator">=</span> <span class="global">workspace</span><span class="punctuation">.</span><span class="property">CurrentCamera</span><span class="punctuation">,</span> <span class="global">workspace</span><span class="punctuation">.</span><span class="property">CurrentCamera</span>
+<span class="keyword">local</span> <span class="variable-declared">Backpack</span> <span class="operator">=</span> <span class="variable-used">localPlayer</span><span class="punctuation">.</span><span class="property">Backpack</span>
+<span class="keyword">local</span> <span class="variable-declared">Camera</span><span class="punctuation">,</span> <span class="variable-declared">camera</span> <span class="operator">=</span> <span class="variable-used">workspace</span><span class="punctuation">.</span><span class="property">CurrentCamera</span><span class="punctuation">,</span> <span class="variable-used">workspace</span><span class="punctuation">.</span><span class="property">CurrentCamera</span>
 
-<span class="keyword">local</span> <span class="variable">sLower</span><span class="punctuation">,</span> <span class="variable">sUpper</span> <span class="operator">=</span> <span class="global">string</span><span class="punctuation">.</span><span class="property">lower</span><span class="punctuation">,</span> <span class="global">string</span><span class="punctuation">.</span><span class="property">upper</span>
-<span class="keyword">local</span> <span class="variable">sFind</span> <span class="operator">=</span> <span class="global">string</span><span class="punctuation">.</span><span class="property">find</span>
+<span class="keyword">local</span> <span class="variable-declared">sLower</span><span class="punctuation">,</span> <span class="variable-declared">sUpper</span> <span class="operator">=</span> <span class="variable-used">string</span><span class="punctuation">.</span><span class="property">lower</span><span class="punctuation">,</span> <span class="variable-used">string</span><span class="punctuation">.</span><span class="property">upper</span>
+<span class="keyword">local</span> <span class="variable-declared">sFind</span> <span class="operator">=</span> <span class="variable-used">string</span><span class="punctuation">.</span><span class="property">find</span>
 
-<span class="keyword">local</span> <span class="variable">Module</span> <span class="operator">=</span> <span class="punctuation">{</span>
-            </div>
+<span class="keyword">local</span> <span class="variable-declared">Module</span> <span class="operator">=</span> <span class="punctuation">{</span></div>
         </div>
 
         <div class="footer-bar">
             <div class="footer-left">
-                <i class="fas fa-play"></i> <i class="fas fa-bug"></i> </div>
+                 <svg><use xlink:href="#icon-play"/></svg>
+                 <svg><use xlink:href="#icon-debug"/></svg>
+            </div>
             <div class="footer-right">
-                <i class="fas fa-folder-open"></i> <i class="fas fa-columns"></i> <i class="fas fa-cog"></i> </div>
+                 <svg><use xlink:href="#icon-folder"/></svg>
+                 <svg><use xlink:href="#icon-panels"/></svg>
+                 <svg><use xlink:href="#icon-settings"/></svg>
+            </div>
         </div>
 
     </div>
