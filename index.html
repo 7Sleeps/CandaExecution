@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Editor Recreation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"> <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap'); /* Common coding font */
+
+        body {
+            background-color: #f0f0f0; /* Light background to see the window */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; /* System font for UI */
+        }
+
+        .editor-window {
+            width: 800px; /* Adjust width as needed */
+            background-color: #2e3035; /* Main editor background */
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            border: 1px solid #4a4c50; /* Subtle border */
+        }
+
+        /* Title Bar */
+        .title-bar {
+            background-color: #3c3f44; /* Title bar background */
+            padding: 8px 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #25272b; /* Separator line */
+        }
+
+        .traffic-lights {
+            display: flex;
+            gap: 8px;
+        }
+
+        .traffic-light {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .red { background-color: #ff5f57; }
+        .yellow { background-color: #febc2e; }
+        .green { background-color: #28c840; }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #adb5bd; /* Light gray text */
+            font-size: 13px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #28c840; /* Green dot */
+            border-radius: 50%;
+        }
+
+        .avatar {
+            width: 20px;
+            height: 20px;
+            background-color: #6c757d; /* Placeholder avatar */
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 10px;
+            color: #fff;
+            font-weight: bold;
+            /* In the screenshot it looks like a stylized 'A' or similar icon */
+             /* Using Font Awesome for a placeholder user icon */
+             font-family: 'Font Awesome 6 Free';
+             content: "\f007"; /* User icon */
+             font-weight: 900;
+
+        }
+         /* Override Font Awesome default styles if needed */
+        .avatar::before {
+            font-family: 'Font Awesome 6 Free';
+            content: "\f007"; /* User icon */
+            font-weight: 900; /* Required for solid icons */
+            color: #e0e0e0;
+        }
+
+
+        /* Tab Bar */
+        .tab-bar {
+            background-color: #25272b; /* Slightly darker than editor bg */
+            display: flex;
+            align-items: center;
+            padding: 0 5px; /* Padding around tabs */
+            height: 38px; /* Match screenshot height */
+        }
+
+        .tab {
+            padding: 8px 10px 8px 28px; /* Padding for icon and text */
+            color: #adb5bd; /* Inactive tab text color */
+            font-size: 13px;
+            position: relative;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            border-right: 1px solid #3c3f44; /* Separator */
+            height: 100%;
+            box-sizing: border-box; /* Include padding/border in height */
+        }
+
+        .tab.active {
+            background-color: #2e3035; /* Same as editor background */
+            color: #e0e0e0; /* Active tab text color */
+            border-top: 1px solid #2e3035; /* Blend top border */
+        }
+
+        .tab .icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 12px;
+            color: #6c757d; /* Icon color */
+        }
+         .tab.active .icon {
+             color: #9fa8da; /* Specific color for active icon if needed */
+         }
+
+        .tab .close-icon {
+            margin-left: 8px;
+            font-size: 12px;
+            color: #6c757d;
+            padding: 2px; /* Make it easier to click */
+        }
+         .tab .close-icon:hover {
+             color: #ced4da;
+             background-color: #4a4c50;
+             border-radius: 3px;
+         }
+         .tab.active .close-icon {
+             color: #adb5bd;
+         }
+
+
+        .add-tab {
+            color: #adb5bd;
+            font-size: 18px;
+            padding: 0 10px;
+            cursor: pointer;
+            margin-left: 5px; /* Space before '+' */
+        }
+        .add-tab:hover {
+             color: #e0e0e0;
+        }
+
+        /* Code Area */
+        .code-area {
+            display: flex;
+            background-color: #2e3035; /* Editor background */
+            font-family: 'Fira Code', monospace; /* Monospaced font */
+            font-size: 13px; /* Adjust font size */
+            line-height: 1.6; /* Adjust line height */
+            padding: 10px 0 10px 10px; /* Padding top/bottom/left */
+        }
+
+        .line-numbers {
+            color: #6c757d; /* Line number color */
+            text-align: right;
+            padding-right: 15px; /* Space between numbers and code */
+            user-select: none; /* Prevent selecting line numbers */
+            white-space: pre; /* Keep line breaks */
+        }
+
+        .code-content {
+            color: #d4d4d4; /* Default code text color */
+            white-space: pre; /* Preserve whitespace and line breaks */
+            flex-grow: 1;
+        }
+
+        /* Syntax Highlighting */
+        .code-content .keyword { color: #569cd6; } /* Blue for 'local' */
+        .code-content .variable { color: #9cdcfe; } /* Light blue for variables */
+        .code-content .function { color: #dcdcaa; } /* Yellow/gold for function calls like GetService */
+        .code-content .method { color: #dcdcaa; } /* Treat methods same as functions */
+        .code-content .string { color: #ce9178; } /* Orange/brown for strings */
+        .code-content .parameter { color: #4ec9b0; } /* Teal for parameters (like in GetService) */
+        .code-content .property { color: #4ec9b0; } /* Teal for properties like .LocalPlayer, .Backpack */
+        .code-content .comment { color: #6a9955; } /* Green for comments (none in screenshot) */
+        .code-content .operator { color: #d4d4d4; } /* Default color for '=' */
+        .code-content .punctuation { color: #d4d4d4; } /* Default color for ',', '(', ')', '{' */
+        .code-content .global { color: #4fc1ff; } /* Different blue for globals like game, workspace */
+
+        /* Footer */
+        .footer-bar {
+            background-color: #3c3f44; /* Same as title bar */
+            border-top: 1px solid #25272b; /* Separator line */
+            padding: 6px 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #adb5bd; /* Icon color */
+            font-size: 16px; /* Icon size */
+        }
+
+        .footer-left, .footer-right {
+            display: flex;
+            gap: 15px; /* Space between icons */
+        }
+
+         .footer-bar i {
+             cursor: pointer;
+         }
+         .footer-bar i:hover {
+             color: #e0e0e0;
+         }
+
+    </style>
+</head>
+<body>
+
+    <div class="editor-window">
+        <div class="title-bar">
+            <div class="traffic-lights">
+                <span class="traffic-light red"></span>
+                <span class="traffic-light yellow"></span>
+                <span class="traffic-light green"></span>
+            </div>
+            <div class="user-profile">
+                <span class="status-dot"></span>
+                <span>Canda</span>
+                 <span class="avatar"></span> </div>
+        </div>
+
+        <div class="tab-bar">
+            <div class="tab">
+                <i class="fas fa-file-alt icon"></i> Untitled
+                <span class="close-icon">&times;</span>
+            </div>
+            <div class="tab active">
+                 <i class="fas fa-fire icon" style="color: #e0ac69;"></i> ArsenalG...
+                <span class="close-icon">&times;</span>
+            </div>
+            <span class="add-tab">+</span>
+        </div>
+
+        <div class="code-area">
+            <div class="line-numbers">
+ 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+            </div>
+            <div class="code-content">
+<span class="keyword">local</span> <span class="variable">RunService</span> <span class="operator">=</span> <span class="global">game</span><span class="punctuation">:</span><span class="function">GetService</span><span class="punctuation">(</span><span class="string">'RunService'</span><span class="punctuation">)</span>
+<span class="keyword">local</span> <span class="variable">TweenService</span> <span class="operator">=</span> <span class="global">game</span><span class="punctuation">:</span><span class="function">GetService</span><span class="punctuation">(</span><span class="string">'TweenService'</span><span class="punctuation">)</span>
+
+<span class="keyword">local</span> <span class="variable">UserInputService</span> <span class="operator">=</span> <span class="global">game</span><span class="punctuation">:</span><span class="function">GetService</span><span class="punctuation">(</span><span class="string">'UserInputService'</span><span class="punctuation">)</span>
+<span class="keyword">local</span> <span class="variable">Players</span> <span class="operator">=</span> <span class="global">game</span><span class="punctuation">:</span><span class="function">GetService</span><span class="punctuation">(</span><span class="string">'Players'</span><span class="punctuation">)</span>
+
+<span class="keyword">local</span> <span class="variable">LocalPlayer</span><span class="punctuation">,</span> <span class="variable">localPlayer</span> <span class="operator">=</span> <span class="variable">Players</span><span class="punctuation">.</span><span class="property">LocalPlayer</span><span class="punctuation">,</span> <span class="variable">Players</span><span class="punctuation">.</span><span class="property">LocalPlayer</span>
+<span class="keyword">local</span> <span class="variable">Mouse</span> <span class="operator">=</span> <span class="variable">localPlayer</span><span class="punctuation">:</span><span class="method">GetMouse</span><span class="punctuation">(</span><span class="punctuation">)</span>
+
+<span class="keyword">local</span> <span class="variable">Backpack</span> <span class="operator">=</span> <span class="variable">localPlayer</span><span class="punctuation">.</span><span class="property">Backpack</span>
+<span class="keyword">local</span> <span class="variable">Camera</span><span class="punctuation">,</span> <span class="variable">camera</span> <span class="operator">=</span> <span class="global">workspace</span><span class="punctuation">.</span><span class="property">CurrentCamera</span><span class="punctuation">,</span> <span class="global">workspace</span><span class="punctuation">.</span><span class="property">CurrentCamera</span>
+
+<span class="keyword">local</span> <span class="variable">sLower</span><span class="punctuation">,</span> <span class="variable">sUpper</span> <span class="operator">=</span> <span class="global">string</span><span class="punctuation">.</span><span class="property">lower</span><span class="punctuation">,</span> <span class="global">string</span><span class="punctuation">.</span><span class="property">upper</span>
+<span class="keyword">local</span> <span class="variable">sFind</span> <span class="operator">=</span> <span class="global">string</span><span class="punctuation">.</span><span class="property">find</span>
+
+<span class="keyword">local</span> <span class="variable">Module</span> <span class="operator">=</span> <span class="punctuation">{</span>
+            </div>
+        </div>
+
+        <div class="footer-bar">
+            <div class="footer-left">
+                <i class="fas fa-play"></i> <i class="fas fa-bug"></i> </div>
+            <div class="footer-right">
+                <i class="fas fa-folder-open"></i> <i class="fas fa-columns"></i> <i class="fas fa-cog"></i> </div>
+        </div>
+
+    </div>
+
+</body>
+</html>
